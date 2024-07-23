@@ -91,3 +91,15 @@ class SplitterNode(AbstractNode):
             self._right_node = PointNode(right_list[0])
         elif len(right_list) > 1:
             self._right_node = SplitterNode(axis=(self.get_axis() + 1) % self.get_dimension(), data_to_split=right_list)
+
+    def recursive_to_string(self, depth: int = 0) -> str:
+        if self.get_left() is None:
+            left_string = ""
+        else:
+            left_string = self.get_left().recursive_to_string(depth=depth+1)
+        if self.get_right() is None:
+            right_string = ""
+        else:
+            right_string = self.get_right().recursive_to_string(depth=depth+1)
+        descriptor = "\t" * depth + f"axis: {self.get_axis()} | threshold: {self.get_threshold()}\n"
+        return left_string + descriptor + right_string
