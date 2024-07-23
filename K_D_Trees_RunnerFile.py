@@ -1,21 +1,28 @@
 import random
 
-from AbstractNodeFile import SplitterNode
+from SplitterNodeFile import SplitterNode
 from typing import List, Tuple, Optional
+
+from TwoDVisualizerFile import TwoDVisualizer
 
 NUM_POINTS = 20
 DIMENSION = 2
 
+
 def main():
     global root
     print("running.")
-    dataset = buildDataSet()
+    dataset = build_dataset()
     print(dataset)
 
+    visualizer = TwoDVisualizer()
+    root = SplitterNode(0, dataset, visualizer)
 
-    root = SplitterNode(0, dataset)
+    print(root)
 
-def buildDataSet():
+    visualizer.display(dataset)
+
+def build_dataset():
     result: List[Optional[Tuple[float, ...]]] = []
     for i in range(NUM_POINTS):
         v: List[float] = []
@@ -23,6 +30,7 @@ def buildDataSet():
             v.append(random.randrange(0, 100))
         result.append(tuple(v))
     return result
+
 
 if __name__ == "__main__":
     main()

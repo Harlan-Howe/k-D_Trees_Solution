@@ -1,21 +1,25 @@
 import random
+
 from AbstractNodeFile import AbstractNode
 from typing import List, Tuple, Optional
 from PointNodeFile import PointNode
+
 
 NUM_POINTS_FOR_MEDIAN = 10
 
 
 class SplitterNode(AbstractNode):
 
-    def __init__(self, axis: int, data_to_split: List[Tuple[float, ...]]):
+    def __init__(self, axis: int, data_to_split: List[Tuple[float, ...]], visualizer):
         self._axis: int = axis
         self._dimension = len(data_to_split[0])
         self._left_node: Optional[AbstractNode] = None  # Optional means it could be a Node, or it could be None.
         self._right_node: Optional[AbstractNode] = None
         self._threshold: float = -1
+        if not visualizer.has_root():
+            visualizer.set_root(self)
 
-        self.build_subtree(data_to_split)
+        self.build_subtree(data_to_split, visualizer)
 
     def get_axis(self) -> int:
         return self._axis
@@ -80,17 +84,24 @@ class SplitterNode(AbstractNode):
         nums.sort()
         return nums[int(len(nums) / 2)]
 
-    def build_subtree(self, data_to_split: List[Tuple[float, ...]]) -> None:
+    def build_subtree(self, data_to_split: List[Tuple[float, ...]], visualizer) -> None:
         self._threshold, left_list, right_list = self.split_data(data_to_split)
         if len(left_list) == 1:
             self._left_node = PointNode(left_list[0])
         elif len(left_list) > 1:
-            self._left_node = SplitterNode(axis=(self.get_axis() + 1) % self.get_dimension(), data_to_split=left_list)
+            self._left_node = SplitterNode(axis=(self.get_axis() + 1) % self.get_dimension(),
+                                           data_to_split=left_list,
+                                           visualizer=visualizer)
 
         if len(right_list) == 1:
             self._right_node = PointNode(right_list[0])
         elif len(right_list) > 1:
-            self._right_node = SplitterNode(axis=(self.get_axis() + 1) % self.get_dimension(), data_to_split=right_list)
+            self._right_node = SplitterNode(axis=(self.get_axis() + 1) % self.get_dimension(),
+                                            data_to_split=right_list,
+                                            visualizer=visualizer)
+
+        if visualizer is not None:
+            visualizer.display(data_to_split)
 
     def recursive_to_string(self, depth: int = 0) -> str:
         if self.get_left() is None:

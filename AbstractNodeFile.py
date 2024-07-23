@@ -22,3 +22,9 @@ class AbstractNode(ABC):  # ABC means this is an abstract class
     @abstractmethod
     def recursive_to_string(self, depth: int = 0) -> str:
         pass
+
+    def __repr__(self):
+        return self.recursive_to_string()
+
+    def __str__(self):
+        return self.recursive_to_string()
