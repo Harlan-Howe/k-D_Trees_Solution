@@ -80,7 +80,7 @@ class SplitterNode(AbstractNode):
         nums.sort()
         return nums[int(len(nums) / 2)]
 
-    def build_subtree(self, data_to_split: List[Tuple[float, ...]], visualizer) -> None:
+    def build_subtree(self, data_to_split: List[Tuple[float, ...]], visualizer=None) -> None:
         self._dimension = len(data_to_split[0])
         self._threshold, left_list, right_list = self.split_data(data_to_split)
         if visualizer is not None:

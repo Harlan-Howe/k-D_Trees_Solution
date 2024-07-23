@@ -9,6 +9,7 @@ from SplitterNodeFile import SplitterNode
 
 SCALE = 4
 MARGIN = 10
+DELAY_MS = 750
 
 class TwoDVisualizer:
 
@@ -41,7 +42,7 @@ class TwoDVisualizer:
         if wait_for_key:
             cv2.waitKey()
         else:
-            cv2.waitKey(1000)
+            cv2.waitKey(DELAY_MS)
 
     def display_subtree(self, sub_root: Optional[AbstractNode]):
         rect = self.rect_stack.pop(-1)

@@ -19,6 +19,7 @@ def main():
     root = SplitterNode(0)
     visualizer.set_root(root)
     root.build_subtree(dataset, visualizer)
+    # root.build_subtree(dataset)
 
     print(root)
 
