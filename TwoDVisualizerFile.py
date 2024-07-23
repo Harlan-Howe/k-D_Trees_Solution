@@ -12,11 +12,12 @@ MARGIN = 10
 
 class TwoDVisualizer:
 
-    def __init__(self, root: Optional[AbstractNode] = None):
+    def __init__(self, root: Optional[AbstractNode] = None, data: Optional[List[Tuple[float, ...]]] = None):
         self.myCanvas = None
         self.clear()
         self.rect_stack: Optional[List[Tuple[float, float, float, float]]] = None
         self._root = root
+        self._data = data
 
     def set_root(self, root: AbstractNode):
         self._root = root
@@ -27,9 +28,9 @@ class TwoDVisualizer:
     def clear(self):
         self.myCanvas = np.zeros((200*SCALE+2*MARGIN, 200*SCALE+2*MARGIN, 3), dtype=float)
 
-    def display(self, data: List[Tuple[float, ...]]):
+    def display(self, wait_for_key: bool = False):
         self.clear()
-        for d in data:
+        for d in self._data:
             cv2.circle(img=self.myCanvas, center=(int(MARGIN+2*SCALE * d[0]), int(MARGIN+2*SCALE * d[1])), radius=SCALE,
                        color=(0.5, 0.5, 0.5), thickness=-1)
 
@@ -37,7 +38,10 @@ class TwoDVisualizer:
         self.display_subtree(self._root)
 
         cv2.imshow("Data", self.myCanvas)
-        cv2.waitKey()
+        if wait_for_key:
+            cv2.waitKey()
+        else:
+            cv2.waitKey(1000)
 
     def display_subtree(self, sub_root: Optional[AbstractNode]):
         rect = self.rect_stack.pop(-1)
@@ -59,14 +63,14 @@ class TwoDVisualizer:
                 cv2.rectangle(img=self.myCanvas,
                               pt1=(int(MARGIN + 2 * SCALE * left_rect[0]), int(MARGIN + 2 * SCALE * left_rect[1])),
                               pt2=(int(MARGIN + 2 * SCALE * left_rect[2]), int(MARGIN + 2 * SCALE * left_rect[3])),
-                              color=(random.random()*0.5, random.random()*0.5, random.random()*0.5),
-                              thickness=-1)
+                              color=(1.0, 0.5, 0.5),
+                              thickness=1)
                 self.rect_stack.append(left_rect)
                 cv2.rectangle(img=self.myCanvas,
                               pt1=(int(MARGIN + 2 * SCALE * right_rect[0]), int(MARGIN + 2 * SCALE * right_rect[1])),
                               pt2=(int(MARGIN + 2 * SCALE * right_rect[2]), int(MARGIN + 2 * SCALE * right_rect[3])),
-                              color=(random.random() * 0.5, random.random() * 0.5, random.random() * 0.5),
-                              thickness=-1)
+                              color=(1.0, 0.5, 0.5),
+                              thickness=1)
                 self.rect_stack.append(right_rect)
                 self.display_subtree(sub_root.get_right())
                 self.display_subtree(sub_root.get_left())
@@ -76,14 +80,14 @@ class TwoDVisualizer:
                 cv2.rectangle(img=self.myCanvas,
                               pt1=(int(MARGIN + 2 * SCALE * top_rect[0]), int(MARGIN + 2 * SCALE * top_rect[1])),
                               pt2=(int(MARGIN + 2 * SCALE * top_rect[2]), int(MARGIN + 2 * SCALE * top_rect[3])),
-                              color=(random.random() * 0.5, random.random() * 0.5, random.random() * 0.5),
-                              thickness=-1)
+                              color=( 0.5, 0.5, 1.0),
+                              thickness=1)
                 self.rect_stack.append(top_rect)
                 cv2.rectangle(img=self.myCanvas,
                               pt1=(int(MARGIN + 2 * SCALE * bottom_rect[0]), int(MARGIN + 2 * SCALE * bottom_rect[1])),
                               pt2=(int(MARGIN + 2 * SCALE * bottom_rect[2]), int(MARGIN + 2 * SCALE * bottom_rect[3])),
-                              color=(random.random() * 0.5, random.random() * 0.5, random.random() * 0.5),
-                              thickness=-1)
+                              color=(0.5, 0.5, 1.0),
+                              thickness=1)
                 self.rect_stack.append(bottom_rect)
                 self.display_subtree(sub_root.get_right())
                 self.display_subtree(sub_root.get_left())

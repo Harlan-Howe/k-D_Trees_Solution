@@ -15,15 +15,17 @@ def main():
     dataset = build_dataset()
     print(dataset)
 
-    visualizer = TwoDVisualizer()
-    root = SplitterNode(0, dataset, visualizer)
+    visualizer = TwoDVisualizer(data=dataset)
+    root = SplitterNode(0)
+    visualizer.set_root(root)
+    root.build_subtree(dataset, visualizer)
 
     print(root)
 
-    visualizer.display(dataset)
+    visualizer.display(wait_for_key=True)
 
 def build_dataset():
-    result: List[Optional[Tuple[float, ...]]] = []
+    result = []
     for i in range(NUM_POINTS):
         v: List[float] = []
         for j in range(DIMENSION):
