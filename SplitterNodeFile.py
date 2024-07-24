@@ -114,3 +114,41 @@ class SplitterNode(AbstractNode):
             right_string = self.get_right().recursive_to_string(depth=depth+1)
         descriptor = "\t" * depth + f"axis: {self.get_axis()} | threshold: {self.get_threshold()}\n"
         return left_string + descriptor + right_string
+
+    def find_nearest(self,
+                     target: Tuple[float, ...],
+                     best_distance_so_far: float) -> Tuple[Optional[Tuple[float, ...]], Optional[float]]:
+        """
+        tries to find a datum closer to the target than the best_distance_so_far. If it finds one in either half of its
+        split, returns the best datum and the shortest distance from the target; otherwise returns None for both.
+        :param target: a data point for which we are searching for the nearest neighbor
+        :param best_distance_so_far: the closest distance we have found from elsewhere on the tree.
+        :return: Either (closest value, shortest distance) if we can improve on best_distance_so_far, or (None, None),
+        otherwise.
+        """
+        found_better = False
+        best_value = None
+        best_distance = best_distance_so_far
+        if target[self.get_axis()] < self.get_threshold():
+            preferred_branch = self.get_left()
+            secondary_branch = self.get_right()
+        else:
+            preferred_branch = self.get_right()
+            secondary_branch = self.get_left()
+
+        if preferred_branch is not None:
+            value, dist = preferred_branch.find_nearest(target, best_distance)
+            if value is not None:
+                found_better = True
+                best_value = value
+                best_distance = dist
+        if secondary_branch is not None and abs(target[self.get_axis()] - self.get_threshold()) < best_distance:
+            value, dist = secondary_branch.find_nearest(target, best_distance)
+            if value is not None:
+                found_better = True
+                best_value = value
+                best_distance = dist
+        if found_better:
+            return best_value, best_distance
+        return None, None
+
