@@ -26,6 +26,14 @@ class PointNode(AbstractNode):
     def find_nearest(self,
                      target: Tuple[float, ...],
                      best_distance_so_far: float) -> Tuple[Optional[Tuple[float, ...]], Optional[float]]:
+        """
+        finds the distance between the target and this node's value. If this distance is shorter than the best distance
+        found so far, returns this node's value and the distance we just found. Otherwise, returns None for both value
+        and distance.
+        :param target: the datum for which we are trying to find a nearest neighbor
+        :param best_distance_so_far: the distance from the target upon which we are trying to improve
+        :return: (value, distance) if we can improve, (None, None) otherwise.
+        """
         distance_squared = 0
         for i in range(len(self._value)):
             distance_squared += pow(target[i]-self._value[i], 2)
