@@ -23,6 +23,12 @@ class AbstractNode(ABC):  # ABC means this is an abstract class
     def recursive_to_string(self, depth: int = 0) -> str:
         pass
 
+    @abstractmethod
+    def find_nearest(self,
+                     target: Tuple[float, ...],
+                     best_distance_so_far: float) -> Tuple[Optional[Tuple[float, ...]], Optional[float]]:
+        pass
+
     def __repr__(self):
         return self.recursive_to_string()
 
