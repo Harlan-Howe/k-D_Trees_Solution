@@ -18,6 +18,12 @@ def main():
     search_value = request_weather_day()
     print(search_value)
 
+    closest, distance = root.find_nearest(search_value, float('inf'))
+    if closest is None:
+        print("There was a problem... Search says none.")
+    else:
+        print(f"{closest=}\t{distance=}\nDescription: {data_from_file[closest]}")
+
 def load_data(filename: str) -> Dict[Tuple[float, float, float, float], str]:
     result = {}
     tsv_file = open(filename)
