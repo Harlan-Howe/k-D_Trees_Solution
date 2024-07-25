@@ -1,3 +1,4 @@
+import math
 import random
 
 import cv2
@@ -9,7 +10,7 @@ from SplitterNodeFile import SplitterNode
 
 SCALE = 4
 MARGIN = 10
-DELAY_MS = 750
+DELAY_MS = 250
 
 class TwoDVisualizer:
 
@@ -31,18 +32,21 @@ class TwoDVisualizer:
 
     def display(self, wait_for_key: bool = False):
         self.clear()
-        for d in self._data:
-            cv2.circle(img=self.myCanvas, center=(int(MARGIN+2*SCALE * d[0]), int(MARGIN+2*SCALE * d[1])), radius=SCALE,
-                       color=(0.5, 0.5, 0.5), thickness=-1)
-
-        self.rect_stack = [(0, 0, 100, 100)]
-        self.display_subtree(self._root)
+        self.show_dots_and_divisions()
 
         cv2.imshow("Data", self.myCanvas)
         if wait_for_key:
             cv2.waitKey()
         else:
             cv2.waitKey(DELAY_MS)
+
+    def show_dots_and_divisions(self):
+        for d in self._data:
+            cv2.circle(img=self.myCanvas, center=(int(MARGIN + 2 * SCALE * d[0]), int(MARGIN + 2 * SCALE * d[1])),
+                       radius=SCALE,
+                       color=(0.5, 0.5, 0.5), thickness=-1)
+        self.rect_stack = [(0, 0, 100, 100)]
+        self.display_subtree(self._root)
 
     def display_subtree(self, sub_root: Optional[AbstractNode]):
         rect = self.rect_stack.pop(-1)
@@ -94,3 +98,34 @@ class TwoDVisualizer:
                 self.display_subtree(sub_root.get_left())
 
 
+    def show_search_progress(self,
+                             target: Tuple[float, ...],
+                             best_point: Optional[Tuple[float, ...]],
+                             wait_for_key: bool = False) -> None:
+        self.clear()
+        self.show_dots_and_divisions()
+        cv2.circle(img=self.myCanvas,
+                   center=(int(MARGIN + 2 * SCALE * target[0]), int(MARGIN + 2 * SCALE * target[1])),
+                   radius=SCALE,
+                   color=(0, 1.0, 0),
+                   thickness=-1)
+
+
+        if best_point is not None:
+            d = math.sqrt(pow(target[0] - best_point[0], 2)+pow(target[1] - best_point[1], 2))
+            cv2.circle(img=self.myCanvas,
+                       center=(int(MARGIN + 2 * SCALE * target[0]), int(MARGIN + 2 * SCALE * target[1])),
+                       radius=int(2 * SCALE * d),
+                       color=(0, 1.0, 0),
+                       thickness=1)
+            cv2.line(img=self.myCanvas,
+                     pt1=(int(MARGIN + 2 * SCALE * target[0]), int(MARGIN + 2 * SCALE * target[1])),
+                     pt2=(int(MARGIN + 2 * SCALE * best_point[0]), int(MARGIN + 2 * SCALE * best_point[1])),
+                     color=(0, 1.0, 0),
+                     thickness=1)
+
+        cv2.imshow("Data", self.myCanvas)
+        if wait_for_key:
+            cv2.waitKey()
+        else:
+            cv2.waitKey(DELAY_MS)

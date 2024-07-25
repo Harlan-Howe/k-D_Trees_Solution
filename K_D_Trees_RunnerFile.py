@@ -5,7 +5,7 @@ from typing import List, Tuple, Optional
 
 from TwoDVisualizerFile import TwoDVisualizer
 
-NUM_POINTS = 20
+NUM_POINTS = 40
 DIMENSION = 2
 
 
@@ -24,6 +24,10 @@ def main():
     print(root)
 
     visualizer.display(wait_for_key=True)
+
+    target = (random.randrange(0, 100), random.randrange(0, 100))
+    closest, distance = root.find_nearest(target, float('inf'), visualizer)
+    visualizer.show_search_progress(target=target, best_point=closest, wait_for_key=True)
 
 def build_dataset():
     result = []

@@ -117,12 +117,14 @@ class SplitterNode(AbstractNode):
 
     def find_nearest(self,
                      target: Tuple[float, ...],
-                     best_distance_so_far: float) -> Tuple[Optional[Tuple[float, ...]], Optional[float]]:
+                     best_distance_so_far: float,
+                     visualizer = None) -> Tuple[Optional[Tuple[float, ...]], Optional[float]]:
         """
         tries to find a datum closer to the target than the best_distance_so_far. If it finds one in either half of its
         split, returns the best datum and the shortest distance from the target; otherwise returns None for both.
         :param target: a data point for which we are searching for the nearest neighbor
         :param best_distance_so_far: the closest distance we have found from elsewhere on the tree.
+        :param visualizer: a TwoDVisualizer used to show the progress of this search, if this is a 2d dataset.
         :return: Either (closest value, shortest distance) if we can improve on best_distance_so_far, or (None, None),
         otherwise.
         """
@@ -138,16 +140,21 @@ class SplitterNode(AbstractNode):
 
         if preferred_branch is not None:
             value, dist = preferred_branch.find_nearest(target, best_distance)
+
             if value is not None:
                 found_better = True
                 best_value = value
                 best_distance = dist
+                if visualizer is not None:
+                    visualizer.show_search_progress(target=target, best_point=best_value)
         if secondary_branch is not None and abs(target[self.get_axis()] - self.get_threshold()) < best_distance:
             value, dist = secondary_branch.find_nearest(target, best_distance)
             if value is not None:
                 found_better = True
                 best_value = value
                 best_distance = dist
+                if visualizer is not None:
+                    visualizer.show_search_progress(target=target, best_point=best_value)
         if found_better:
             return best_value, best_distance
         return None, None
