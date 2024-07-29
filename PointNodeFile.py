@@ -1,3 +1,4 @@
+import logging
 import math
 from typing import Tuple, Optional
 
@@ -27,8 +28,8 @@ class PointNode(AbstractNode):
                      target: Tuple[float, ...],
                      best_value_so_far: Optional[Tuple[float, ...]],
                      best_distance_so_far: float,
-                     axis: int = -1,
-                     threshold: float = -1,
+                     # axis: int = -1,
+                     # threshold: float = -1,
                      visualizer=None) -> Tuple[Optional[Tuple[float, ...]], Optional[float]]:
         """
         finds the distance between the target and this node's value. If this distance is shorter than the best distance
@@ -44,7 +45,11 @@ class PointNode(AbstractNode):
             distance_squared += pow(target[i]-self._value[i], 2)
         distance = math.sqrt(distance_squared)
         if distance < best_distance_so_far:
+            logging.info(f"Found an improvement: {distance=}")
+            if visualizer is not None:
+                visualizer.show_search_progress(target=target, best_point=self._value, wait_for_key=True)
             return self._value, distance
+
         else:
             return None, None
 
