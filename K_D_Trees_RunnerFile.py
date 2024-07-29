@@ -7,8 +7,9 @@ from typing import Set, List, Tuple, Optional
 
 from TwoDVisualizerFile import TwoDVisualizer
 
-NUM_POINTS = 80
+NUM_POINTS = 30
 DIMENSION = 2
+USE_VISUALIZER_IF_POSSIBLE = True
 
 logging.basicConfig(level=logging.INFO) # simple version to the output console
 
@@ -21,23 +22,51 @@ def main():
     root = SplitterNode(0)
     visualizer = None
 
-    if DIMENSION == 2:
+    if USE_VISUALIZER_IF_POSSIBLE and DIMENSION == 2:
         visualizer = TwoDVisualizer(data=dataset)
         visualizer.set_root(root)
         root.build_subtree(dataset, visualizer)
         print(root)
-        visualizer.display(wait_for_key=True)
+        visualizer.display(wait_for_key=False)
     else:
         root.build_subtree(dataset)
         print(root)
 
-    target = (random.randrange(0, 100), random.randrange(0, 100))
+    while True:
+        print(f"Please give me {DIMENSION} numbers from 0-100, separated by spaces. ", end="")
+        response_string = input()
+        response_vals = response_string.split(" ")
+        if len(response_vals) != DIMENSION:
+            print("That was the wrong number of numbers.")
+            continue
+        result_list = []
+        for val in response_vals:
+            try:
+                v = float(val)
+                if 0 <= v <= 100:
+                    result_list.append(v)
+                else:
+                    print(f"{v} was out of bounds.")
+            except:
+                print(f"'{val}' is not a number.")
+        if len(result_list) == DIMENSION:
+            target = tuple(result_list)
+            break
+        else:
+            print("Try again.")
+
     closest, distance = root.find_nearest(target, None, float('inf'), visualizer)
-    if DIMENSION == 2:
+
+    if visualizer is not None:
         visualizer.show_search_progress(target=target, best_point=closest, wait_for_key=True)
     print(f"The closest point to {target} is {closest}.")
 
+
 def build_dataset() -> Set[Tuple[float, ...]]:
+    """
+    creates a set of NUM_POINTS Tuples of DIMENSION numbers from 0-100.
+    :return: a set of NUM_POINTS Tuples, each of DIMENSION floats.
+    """
     result = set(())
     for i in range(NUM_POINTS):
         while True:
