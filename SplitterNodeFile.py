@@ -71,7 +71,7 @@ class SplitterNode(AbstractNode):
         :return: a float of the median value along the current axis.
         """
         nums: List[float] = []
-        if NUM_POINTS_FOR_MEDIAN > 0 and NUM_POINTS_FOR_MEDIAN > len(data_to_split):
+        if 0 < NUM_POINTS_FOR_MEDIAN < len(data_to_split):
             for i in range(NUM_POINTS_FOR_MEDIAN):
                 nums.append(data_to_split[random.randint(0, len(data_to_split) - 1)][self.get_axis()])
         else:
