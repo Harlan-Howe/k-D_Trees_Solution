@@ -125,14 +125,30 @@ class TwoDVisualizer:
                      pt2=(int(MARGIN + 2 * SCALE * best_point[0]), int(MARGIN + 2 * SCALE * best_point[1])),
                      color=(0, 1.0, 0),
                      thickness=1)
-        if axis > -1:
-            edge_pt = [target[0],target[1]]
+
+
+        if threshold > -1:
+            edge_pt = [target[0], target[1]]
             edge_pt[axis] = threshold
             cv2.line(img=self.myCanvas,
                      pt1=(int(MARGIN + 2 * SCALE * target[0]), int(MARGIN + 2 * SCALE * target[1])),
                      pt2=(int(MARGIN + 2 * SCALE * edge_pt[0]), int(MARGIN + 2 * SCALE * edge_pt[1])),
                      color=(0, 1.0, 1.0),
                      thickness=1)
+            overlay = self.myCanvas.copy()
+            if axis == 1:
+                cv2.line(img=overlay,
+                         pt1=(MARGIN, int(MARGIN + 2 * SCALE * edge_pt[1])),
+                         pt2=(int(MARGIN + 2 * SCALE * 100), int(MARGIN + 2 * SCALE * edge_pt[1])),
+                         color=(0, 1.0, 0),
+                         thickness=1)
+            else:
+                cv2.line(img=overlay,
+                         pt1=(int(MARGIN + 2 * SCALE * edge_pt[0]),MARGIN),
+                         pt2=(int(MARGIN + 2 * SCALE * edge_pt[0]),int(MARGIN + 2 * SCALE * 100)),
+                         color=(0, 1.0, 0),
+                         thickness=1)
+            self.myCanvas = cv2.addWeighted(overlay, 0.3, self.myCanvas, 0.7, 0)
 
         cv2.imshow("Data", self.myCanvas)
         if wait_for_key:
