@@ -10,8 +10,9 @@ from TwoDVisualizerFile import TwoDVisualizer
 NUM_POINTS = 40
 DIMENSION = 2
 
-# logging.basicConfig(level=logging.INFO) # simple version to the output console
+logging.basicConfig(level=logging.INFO) # simple version to the output console
 
+@log_start_stop_method
 def main():
     global root
     print("running.")
