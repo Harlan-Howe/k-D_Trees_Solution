@@ -11,7 +11,7 @@ NUM_POINTS_FOR_MEDIAN = 10
 
 class SplitterNode(AbstractNode):
 
-    def __init__(self, axis: int):
+    def __init__(self, axis: int = 0):
         self._axis: int = axis
         self._dimension = -1
         self._left_node: Optional[AbstractNode] = None  # Optional means it could be a Node, or it could be None.
