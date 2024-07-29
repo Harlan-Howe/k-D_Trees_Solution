@@ -159,14 +159,14 @@ class SplitterNode(AbstractNode):
                 found_better = True
                 best_value = value
                 best_distance = dist
-                if visualizer is not None:
-                    visualizer.show_search_progress(target=target, best_point=best_value,axis=self.get_axis(), threshold=self.get_threshold(), wait_for_key=True)
+
         else:
             if secondary_branch is None:
                 logging.info(f"{id} no secondary to go to.")
             else:
                 logging.info(f"{id} separation is {abs(target[self.get_axis()] - self.get_threshold())} and {best_distance=}")
         if found_better:
+
             return best_value, best_distance
         return None, None
 
