@@ -117,6 +117,7 @@ class SplitterNode(AbstractNode):
 
     def find_nearest(self,
                      target: Tuple[float, ...],
+                     best_value_so_far: Optional[Tuple[float, ...]],
                      best_distance_so_far: float,
                      visualizer = None) -> Tuple[Optional[Tuple[float, ...]], Optional[float]]:
         """
@@ -129,7 +130,7 @@ class SplitterNode(AbstractNode):
         otherwise.
         """
         found_better = False
-        best_value = None
+        best_value = best_value_so_far
         best_distance = best_distance_so_far
         if target[self.get_axis()] < self.get_threshold():
             preferred_branch = self.get_left()
@@ -139,22 +140,24 @@ class SplitterNode(AbstractNode):
             secondary_branch = self.get_left()
 
         if preferred_branch is not None:
-            value, dist = preferred_branch.find_nearest(target, best_distance)
+            value, dist = preferred_branch.find_nearest(target, best_value, best_distance)
 
             if value is not None:
                 found_better = True
                 best_value = value
                 best_distance = dist
-                if visualizer is not None:
-                    visualizer.show_search_progress(target=target, best_point=best_value)
+
+        if visualizer is not None:
+            visualizer.show_search_progress(target=target, best_point=best_value, axis=self.get_axis(), threshold=self.get_threshold(), wait_for_key=True)
         if secondary_branch is not None and abs(target[self.get_axis()] - self.get_threshold()) < best_distance:
-            value, dist = secondary_branch.find_nearest(target, best_distance)
+
+            value, dist = secondary_branch.find_nearest(target, best_value, best_distance)
             if value is not None:
                 found_better = True
                 best_value = value
                 best_distance = dist
                 if visualizer is not None:
-                    visualizer.show_search_progress(target=target, best_point=best_value)
+                    visualizer.show_search_progress(target=target, best_point=best_value,axis=self.get_axis(), threshold=self.get_threshold(), wait_for_key=True)
         if found_better:
             return best_value, best_distance
         return None, None

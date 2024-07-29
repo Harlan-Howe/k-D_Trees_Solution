@@ -1,4 +1,6 @@
 import random
+import logging
+from KinkaidDecorators import log_start_stop_method
 
 from SplitterNodeFile import SplitterNode
 from typing import List, Tuple, Optional
@@ -8,6 +10,7 @@ from TwoDVisualizerFile import TwoDVisualizer
 NUM_POINTS = 40
 DIMENSION = 2
 
+# logging.basicConfig(level=logging.INFO) # simple version to the output console
 
 def main():
     global root
@@ -26,7 +29,7 @@ def main():
     visualizer.display(wait_for_key=True)
 
     target = (random.randrange(0, 100), random.randrange(0, 100))
-    closest, distance = root.find_nearest(target, float('inf'), visualizer)
+    closest, distance = root.find_nearest(target, None, float('inf'), visualizer)
     visualizer.show_search_progress(target=target, best_point=closest, wait_for_key=True)
 
 def build_dataset():

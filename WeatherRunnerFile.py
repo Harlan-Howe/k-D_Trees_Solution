@@ -18,7 +18,7 @@ def main():
     search_value = request_weather_day()
     print(search_value)
 
-    closest, distance = root.find_nearest(search_value, float('inf'))
+    closest, distance = root.find_nearest(search_value, None, float('inf'))
     if closest is None:
         print("There was a problem... Search says none.")
     else:

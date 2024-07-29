@@ -101,6 +101,8 @@ class TwoDVisualizer:
     def show_search_progress(self,
                              target: Tuple[float, ...],
                              best_point: Optional[Tuple[float, ...]],
+                             axis: int = -1,
+                             threshold: float = -1,
                              wait_for_key: bool = False) -> None:
         self.clear()
         self.show_dots_and_divisions()
@@ -123,9 +125,17 @@ class TwoDVisualizer:
                      pt2=(int(MARGIN + 2 * SCALE * best_point[0]), int(MARGIN + 2 * SCALE * best_point[1])),
                      color=(0, 1.0, 0),
                      thickness=1)
+        if axis > -1:
+            edge_pt = [target[0],target[1]]
+            edge_pt[axis] = threshold
+            cv2.line(img=self.myCanvas,
+                     pt1=(int(MARGIN + 2 * SCALE * target[0]), int(MARGIN + 2 * SCALE * target[1])),
+                     pt2=(int(MARGIN + 2 * SCALE * edge_pt[0]), int(MARGIN + 2 * SCALE * edge_pt[1])),
+                     color=(0, 1.0, 1.0),
+                     thickness=1)
 
         cv2.imshow("Data", self.myCanvas)
         if wait_for_key:
-            cv2.waitKey()
+             cv2.waitKey()
         else:
             cv2.waitKey(DELAY_MS)

@@ -26,7 +26,10 @@ class AbstractNode(ABC):  # ABC means this is an abstract class
     @abstractmethod
     def find_nearest(self,
                      target: Tuple[float, ...],
+                     best_value_so_far: Optional[Tuple[float, ...]],
                      best_distance_so_far: float,
+                     axis: int = -1,
+                     threshold: float = -1,
                      visualizer=None) -> Tuple[Optional[Tuple[float, ...]], Optional[float]]:
         pass
 
