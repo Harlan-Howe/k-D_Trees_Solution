@@ -1,10 +1,11 @@
+import logging
 import random
 
 from AbstractNodeFile import AbstractNode
 from typing import List, Tuple, Optional
 from PointNodeFile import PointNode
 
-
+from KinkaidDecorators import log_start_stop_method
 NUM_POINTS_FOR_MEDIAN = 10
 
 
@@ -115,6 +116,7 @@ class SplitterNode(AbstractNode):
         descriptor = "\t" * depth + f"axis: {self.get_axis()} | threshold: {self.get_threshold()}\n"
         return left_string + descriptor + right_string
 
+    @log_start_stop_method
     def find_nearest(self,
                      target: Tuple[float, ...],
                      best_value_so_far: Optional[Tuple[float, ...]],
@@ -138,9 +140,10 @@ class SplitterNode(AbstractNode):
         else:
             preferred_branch = self.get_right()
             secondary_branch = self.get_left()
-
+        id = random.randint(0,1000)
         if preferred_branch is not None:
-            value, dist = preferred_branch.find_nearest(target, best_value, best_distance)
+            logging.info(f"{id} going to preferred.")
+            value, dist = preferred_branch.find_nearest(target, best_value, best_distance, visualizer=visualizer)
 
             if value is not None:
                 found_better = True
@@ -150,14 +153,19 @@ class SplitterNode(AbstractNode):
         if visualizer is not None:
             visualizer.show_search_progress(target=target, best_point=best_value, axis=self.get_axis(), threshold=self.get_threshold(), wait_for_key=True)
         if secondary_branch is not None and abs(target[self.get_axis()] - self.get_threshold()) < best_distance:
-
-            value, dist = secondary_branch.find_nearest(target, best_value, best_distance)
+            logging.info(f"{id} going to secondary.")
+            value, dist = secondary_branch.find_nearest(target, best_value, best_distance, visualizer=visualizer)
             if value is not None:
                 found_better = True
                 best_value = value
                 best_distance = dist
                 if visualizer is not None:
                     visualizer.show_search_progress(target=target, best_point=best_value,axis=self.get_axis(), threshold=self.get_threshold(), wait_for_key=True)
+        else:
+            if secondary_branch is None:
+                logging.info(f"{id} no secondary to go to.")
+            else:
+                logging.info(f"{id} separation is {abs(target[self.get_axis()] - self.get_threshold())} and {best_distance=}")
         if found_better:
             return best_value, best_distance
         return None, None
