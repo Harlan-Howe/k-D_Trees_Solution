@@ -11,7 +11,7 @@ def main():
     print(f"Loaded {len(data_from_file)} days.")
 
     root = SplitterNode(0)
-    root.build_subtree(list(data_from_file.keys()))
+    root.build_subtree(data_from_file.keys())
 
     # print(root)
 

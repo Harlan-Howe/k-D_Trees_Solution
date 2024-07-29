@@ -3,7 +3,7 @@ import logging
 from KinkaidDecorators import log_start_stop_method
 
 from SplitterNodeFile import SplitterNode
-from typing import List, Tuple, Optional
+from typing import Set, List, Tuple, Optional
 
 from TwoDVisualizerFile import TwoDVisualizer
 
@@ -37,8 +37,8 @@ def main():
         visualizer.show_search_progress(target=target, best_point=closest, wait_for_key=True)
     print(f"The closest point to {target} is {closest}.")
 
-def build_dataset():
-    result = []
+def build_dataset() -> Set[Tuple[float, ...]]:
+    result = set(())
     for i in range(NUM_POINTS):
         while True:
             v: List[float] = []
@@ -48,7 +48,7 @@ def build_dataset():
             if pt in result:
                 print("Duplicate.")
             else:
-                result.append(tuple(v))
+                result.add(tuple(v))
                 break
     return result
 

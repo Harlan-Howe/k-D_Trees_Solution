@@ -2,7 +2,7 @@ import logging
 import random
 
 from AbstractNodeFile import AbstractNode
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Set
 from PointNodeFile import PointNode
 
 from KinkaidDecorators import log_start_stop_method
@@ -42,28 +42,35 @@ class SplitterNode(AbstractNode):
     def recursive_to_string(self, depth: int = 0) -> str:
         return "To String not yet implemented"
 
-    def split_data(self, data_to_split: List[Tuple[float, ...]]) -> Tuple[float,
-                                                                          List[Tuple[float, ...]],
-                                                                          List[Tuple[float, ...]]]:
+    def split_data(self, data_to_split: Set[Tuple[float, ...]]) -> Tuple[float,
+                                                                         Set[Tuple[float, ...]],
+                                                                         Set[Tuple[float, ...]]]:
         """
         determines a median value of the data_to_split (or a random subset of it) along the current axis and divides the
-        data_to_split into two lists, one with the data on this axis below the median, and own with the data on this
-        axis above or equal to the median.
-        :param data_to_split: the list we wish to divide
-        :return: two sublists of the data_to_split.
+        data_to_split into two sets, one with the data on this axis below the median, and own with the data on this
+        axis above the median. Any values of the data on this axis equal to the median are randomly distributed between
+        the sets, so that all the data to split are placed into either the left or right set, and the sum of the
+        left and right sets lengths match the length of data_to_split.
+        :param data_to_split: the set we wish to divide
+        :return: two subsets of the data_to_split.
         """
         threshold = self.get_median_value(data_to_split)
-        left_list: List[Tuple[float, ...]] = []
-        right_list: List[Tuple[float, ...]] = []
+        left_set: Set[Tuple[float, ...]] = set(())
+        right_set: Set[Tuple[float, ...]] = set(())
 
-        for i in range(len(data_to_split)):
-            if data_to_split[i][self.get_axis()] < threshold:
-                left_list.append(data_to_split[i])
+        for datum in data_to_split:
+            if datum[self.get_axis()] < threshold:
+                left_set.add(datum)
+            elif datum[self.get_axis()] > threshold:
+                right_set.add(datum)
             else:
-                right_list.append(data_to_split[i])
-        return threshold, left_list, right_list
+                if random.random() < 0.5:
+                    left_set.add(datum)
+                else:
+                    right_set.add(datum)
+        return threshold, left_set, right_set
 
-    def get_median_value(self, data_to_split: List[Tuple[float, ...]]) -> float:
+    def get_median_value(self, data_to_split: Set[Tuple[float, ...]]) -> float:
         """
         gets the median value along the current axis of a random subset of the given data (or all of the data),
         depending on NUM_POINTS_FOR_MEDIAN and the length of the dataset.
@@ -72,35 +79,36 @@ class SplitterNode(AbstractNode):
         """
         nums: List[float] = []
         if 0 < NUM_POINTS_FOR_MEDIAN < len(data_to_split):
-            for i in range(NUM_POINTS_FOR_MEDIAN):
-                nums.append(data_to_split[random.randint(0, len(data_to_split) - 1)][self.get_axis()])
+            list_to_split = list(data_to_split)
+            sublist = random.sample(list_to_split, NUM_POINTS_FOR_MEDIAN)
+            for datum in sublist:
+                nums.append(datum[self.get_axis()])
         else:
-            for i in range(len(data_to_split)):
-                nums.append(data_to_split[i][self.get_axis()])
+            for datum in data_to_split:
+                nums.append(datum[self.get_axis()])
 
         nums.sort()
         return nums[int(len(nums) / 2)]
 
-    def build_subtree(self, data_to_split: List[Tuple[float, ...]], visualizer=None) -> None:
-        self._dimension = len(data_to_split[0])
-        self._threshold, left_list, right_list = self.split_data(data_to_split)
+    def build_subtree(self, data_to_split: Set[Tuple[float, ...]], visualizer=None) -> None:
+        self._dimension = len(next(iter(data_to_split)))
+        self._threshold, left_set, right_set = self.split_data(data_to_split)
         if visualizer is not None:
             visualizer.display()
-        if len(left_list) == 1:
-            self._left_node = PointNode(left_list[0])
+        if len(left_set) == 1:
+            self._left_node = PointNode(next(iter(left_set)))
 
-        elif len(left_list) > 1:
+        elif len(left_set) > 1:
             self._left_node = SplitterNode(axis=(self.get_axis() + 1) % self.get_dimension())
-            self._left_node.build_subtree(data_to_split=left_list,
+            self._left_node.build_subtree(data_to_split=left_set,
                                           visualizer=visualizer)
 
+        if len(right_set) == 1:
+            self._right_node = PointNode(next(iter(right_set)))
 
-        if len(right_list) == 1:
-            self._right_node = PointNode(right_list[0])
-
-        elif len(right_list) > 1:
+        elif len(right_set) > 1:
             self._right_node = SplitterNode(axis=(self.get_axis() + 1) % self.get_dimension())
-            self._right_node.build_subtree(data_to_split=right_list,
+            self._right_node.build_subtree(data_to_split=right_set,
                                            visualizer=visualizer)
 
 
