@@ -7,7 +7,7 @@ from typing import List, Tuple, Optional
 
 from TwoDVisualizerFile import TwoDVisualizer
 
-NUM_POINTS = 40
+NUM_POINTS = 80
 DIMENSION = 2
 
 logging.basicConfig(level=logging.INFO) # simple version to the output console
@@ -18,28 +18,38 @@ def main():
     print("running.")
     dataset = build_dataset()
     print(dataset)
-
-    visualizer = TwoDVisualizer(data=dataset)
     root = SplitterNode(0)
-    visualizer.set_root(root)
-    root.build_subtree(dataset, visualizer)
-    # root.build_subtree(dataset)
+    visualizer = None
 
-    print(root)
-
-    visualizer.display(wait_for_key=True)
+    if DIMENSION == 2:
+        visualizer = TwoDVisualizer(data=dataset)
+        visualizer.set_root(root)
+        root.build_subtree(dataset, visualizer)
+        print(root)
+        visualizer.display(wait_for_key=True)
+    else:
+        root.build_subtree(dataset)
+        print(root)
 
     target = (random.randrange(0, 100), random.randrange(0, 100))
     closest, distance = root.find_nearest(target, None, float('inf'), visualizer)
-    visualizer.show_search_progress(target=target, best_point=closest, wait_for_key=True)
+    if DIMENSION == 2:
+        visualizer.show_search_progress(target=target, best_point=closest, wait_for_key=True)
+    print(f"The closest point to {target} is {closest}.")
 
 def build_dataset():
     result = []
     for i in range(NUM_POINTS):
-        v: List[float] = []
-        for j in range(DIMENSION):
-            v.append(random.randrange(0, 100))
-        result.append(tuple(v))
+        while True:
+            v: List[float] = []
+            for j in range(DIMENSION):
+                v.append(random.randrange(0, 100))
+            pt = tuple(v)
+            if pt in result:
+                print("Duplicate.")
+            else:
+                result.append(tuple(v))
+                break
     return result
 
 
