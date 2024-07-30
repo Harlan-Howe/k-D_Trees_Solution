@@ -34,6 +34,8 @@ class PointNode(AbstractNode):
         found so far, returns this node's value and the distance we just found. Otherwise, returns None for both value
         and distance.
         :param target: the datum for which we are trying to find a nearest neighbor
+        :param best_value_so_far: the closest datum found previously in this search process, or None if we haven't found
+        one.
         :param best_distance_so_far: the distance from the target upon which we are trying to improve
         :param visualizer: a hook to a visualizer, so we can see progress if this is 2-d. Not used.
         :return: (value, distance) if we can improve, (None, None) otherwise.
@@ -42,6 +44,7 @@ class PointNode(AbstractNode):
         for i in range(len(self._value)):
             distance_squared += pow(target[i]-self._value[i], 2)
         distance = math.sqrt(distance_squared)
+
         if distance < best_distance_so_far:
             logging.info(f"Found an improvement: {distance=}")
             if visualizer is not None:
