@@ -17,13 +17,18 @@ logging.basicConfig(level=logging.INFO) # simple version to the output console
 def main():
     global root
     print("running.")
+    # create the dataset and empty root splitternode.
     dataset = build_dataset()
     print(dataset)
-    root = SplitterNode(0)
-    visualizer = None
+    root = SplitterNode()
 
+    # create the visualizer (if using)
+    visualizer = None
     if USE_VISUALIZER_IF_POSSIBLE and DIMENSION == 2:
         visualizer = TwoDVisualizer(data=dataset)
+
+    # build the tree, with or without visualizer.
+    if visualizer is not None:
         visualizer.set_root(root)
         root.build_subtree(dataset, visualizer)
         print(root)
@@ -32,6 +37,25 @@ def main():
         root.build_subtree(dataset)
         print(root)
 
+    while True:
+        # get a target value to search for
+        target = ask_for_target()
+
+        closest, distance = root.find_nearest(target,  # the point to which we want the closest point in the dataset
+                                              None,  # the best point so far... we're just starting so there isn't one.
+                                              float('inf'),  # the closest distance point so far... inifinity so far
+                                              visualizer)
+
+        if visualizer is not None:
+            visualizer.show_search_progress(target=target, best_point=closest, wait_for_key=False)
+        print(f"The closest point to {target} is {closest}.")
+
+
+def ask_for_target() -> Tuple[float, ...]:
+    """
+    request DIMENSION numbers from 0-100 from the user, and keep asking until you get them.
+    :return: a tuple consisting of DIMENSION numbers from 0-100.
+    """
     while True:
         print(f"Please give me {DIMENSION} numbers from 0-100, separated by spaces. ", end="")
         response_string = input()
@@ -54,12 +78,7 @@ def main():
             break
         else:
             print("Try again.")
-
-    closest, distance = root.find_nearest(target, None, float('inf'), visualizer)
-
-    if visualizer is not None:
-        visualizer.show_search_progress(target=target, best_point=closest, wait_for_key=True)
-    print(f"The closest point to {target} is {closest}.")
+    return target
 
 
 def build_dataset() -> Set[Tuple[float, ...]]:
