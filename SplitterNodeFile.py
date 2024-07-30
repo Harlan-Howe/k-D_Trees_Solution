@@ -40,6 +40,29 @@ class SplitterNode(AbstractNode):
     def get_value(self) -> Optional[Tuple[float, ...]]:
         return None
 
+    def get_median_value(self, data_to_split: Set[Tuple[float, ...]]) -> float:
+        """
+        gets the median value along the current axis of a random subset of the given data (or all of the data),
+        depending on NUM_POINTS_FOR_MEDIAN and the length of the dataset.
+        :param data_to_split: the data in which to find the median value along the current axis.
+        :return: a float of the median value along the current axis.
+        """
+        # TODO #0 - you've been given a variable, data_to_split, which consists of a Set of Tuples of floats. You also
+        #           have a variable you can access via self.get_axis() that is the index of the item in all these tuples
+        #           we care about....
+        nums: List[float] = []
+        if 0 < NUM_POINTS_FOR_MEDIAN < len(data_to_split):
+            list_to_split = list(data_to_split)  # makes a list from the set.
+            # TODO #0a - ... fill "nums" in with the items at the specified index for NUM_POINTS_FOR_MEDIAN entries in
+            #            list_to_split.
+        else:
+            # TODO #0b - ... fill "nums" in with the items at the specified index for all the entries in data_to_split.
+            for datum in data_to_split:
+                nums.append(datum[self.get_axis()])
+
+        # TODO #0c - return the median float value stored in "nums."
+        return -1  # replace this!!!!
+
     def split_data(self, data_to_split: Set[Tuple[float, ...]]) -> Tuple[float,
                                                                          Set[Tuple[float, ...]],
                                                                          Set[Tuple[float, ...]]]:
@@ -53,40 +76,16 @@ class SplitterNode(AbstractNode):
         :return: two subsets of the data_to_split.
         """
         threshold = self.get_median_value(data_to_split)
-        left_set: Set[Tuple[float, ...]] = set(())
+        left_set: Set[Tuple[float, ...]] = set(())  # create empty sets.
         right_set: Set[Tuple[float, ...]] = set(())
 
         for datum in data_to_split:
-            if datum[self.get_axis()] < threshold:
-                left_set.add(datum)
-            elif datum[self.get_axis()] > threshold:
-                right_set.add(datum)
-            else:  # if equal, then flip a coin.
-                if random.random() < 0.5:
-                    left_set.add(datum)
-                else:
-                    right_set.add(datum)
+            # TODO #1 - for each datum, find the float stored at index self.get_axis(). If this is less than the
+            #           threshold, put datum into the left set. If it is more than the threshold, put it into the right
+            #           set. If it matches the threshold, "flip a coin" (each time) to decide which set to put it into.
+            pass  # replace this line.
+
         return threshold, left_set, right_set
-
-    def get_median_value(self, data_to_split: Set[Tuple[float, ...]]) -> float:
-        """
-        gets the median value along the current axis of a random subset of the given data (or all of the data),
-        depending on NUM_POINTS_FOR_MEDIAN and the length of the dataset.
-        :param data_to_split: the data in which to find the median value along the current axis.
-        :return: a float of the median value along the current axis.
-        """
-        nums: List[float] = []
-        if 0 < NUM_POINTS_FOR_MEDIAN < len(data_to_split):
-            list_to_split = list(data_to_split)
-            sublist = random.sample(list_to_split, NUM_POINTS_FOR_MEDIAN)
-            for datum in sublist:
-                nums.append(datum[self.get_axis()])
-        else:
-            for datum in data_to_split:
-                nums.append(datum[self.get_axis()])
-
-        nums.sort()
-        return nums[int(len(nums) / 2)]
 
     def build_subtree(self, data_to_split: Set[Tuple[float, ...]], visualizer=None) -> None:
         """
@@ -102,19 +101,15 @@ class SplitterNode(AbstractNode):
         if visualizer is not None:
             visualizer.display()
 
-        if len(left_set) == 1:
-            self._left_node = PointNode(next(iter(left_set)))
-        elif len(left_set) > 1:
-            self._left_node = SplitterNode(axis=(self.get_axis() + 1) % self.get_dimension())
-            self._left_node.build_subtree(data_to_split=left_set,
-                                          visualizer=visualizer)
+        # TODO # 2a - If there is only one tuple in left_set, create a new PointNode based on that item, and set
+        #             self._left_node to be that PointNode. (Hint: look at the first line of this method.) However,
+        #             if there is more than one tuple in left_set, create a new SplitterNode, based on the next axis
+        #             in the rotation after self.get_axis(), set the self._left_node to be that SplitterNode, and
+        #             recursively tell that node to build subtree, based on the left set and the given visualizer.
 
-        if len(right_set) == 1:
-            self._right_node = PointNode(next(iter(right_set)))
-        elif len(right_set) > 1:
-            self._right_node = SplitterNode(axis=(self.get_axis() + 1) % self.get_dimension())
-            self._right_node.build_subtree(data_to_split=right_set,
-                                           visualizer=visualizer)
+        # TODO # 2b - Repeat 2a, only for the right side.
+
+    # NOTE: "To do" number 3 is in PointNodeFile.py.
 
     def recursive_to_string(self, depth: int = 0) -> str:
         if self.get_left() is None:
@@ -133,7 +128,7 @@ class SplitterNode(AbstractNode):
                      target: Tuple[float, ...],
                      best_value_so_far: Optional[Tuple[float, ...]],
                      best_distance_so_far: float,
-                     visualizer = None) -> Tuple[Optional[Tuple[float, ...]], Optional[float]]:
+                     visualizer=None) -> Tuple[Optional[Tuple[float, ...]], Optional[float]]:
         """
         tries to find a datum closer to the target than the best_distance_so_far. If it finds one in either half of its
         split, returns the best datum and the shortest distance from the target; otherwise returns None for both.
@@ -148,21 +143,19 @@ class SplitterNode(AbstractNode):
         found_better = False
         best_value = best_value_so_far
         best_distance = best_distance_so_far
-        if target[self.get_axis()] < self.get_threshold():
-            preferred_branch = self.get_left()
-            secondary_branch = self.get_right()
-        else:
-            preferred_branch = self.get_right()
-            secondary_branch = self.get_left()
-        method_id = random.randint(0, 1000)
+
+        # TODO #4a - You've got target, a tuple of floats; self.get_axis(); and self.get_threshold(). Assign
+        #            preferred_branch to be either self.get_left() or self.get_right(). Then assign secondary_branch to
+        #            be the other. Note that self.get_left() or self.get_right() could be None, a SplitterNode, or
+        #            a PointNode... any of these are ok.
+        preferred_branch: Optional[AbstractNode] = None  # replace these lines with your code.
+        secondary_branch: Optional[AbstractNode] = None
 
         if preferred_branch is not None:
-            logging.info(f"{method_id} going to preferred.")
             value, dist = preferred_branch.find_nearest(target, best_value, best_distance, visualizer=visualizer)
-            if value is not None:
-                found_better = True
-                best_value = value
-                best_distance = dist
+            # TODO #4b - if you have a non-None value back, that means the recursive call found an improvement on
+            #            previous search results. If so, update best_value, best_distance and found_better.
+            pass  # replace this line.
 
         if visualizer is not None:  # if there is a visualizer, have it show what we've found so far and the distance
             #                         to the threshold line, then wait for key press.
@@ -172,19 +165,16 @@ class SplitterNode(AbstractNode):
                                             threshold=self.get_threshold(),
                                             wait_for_key=True)
 
-        if secondary_branch is not None and abs(target[self.get_axis()] - self.get_threshold()) < best_distance:
-            logging.info(f"{method_id} going to secondary.")
-            value, dist = secondary_branch.find_nearest(target, best_value, best_distance, visualizer=visualizer)
-            if value is not None:
-                found_better = True
-                best_value = value
-                best_distance = dist
+        # TODO # 4c - update the second half of the following "if" statement so that the secondary branch is only
+        #             accessed if the target is closer to the threshold on this axis than the best_distance. (Otherwise,
+        #             there's no point looking on the other side of the threshold!)
+        if secondary_branch is not None and True:  # replace the "True" with your condition from #4c here.
+            # TODO # 4d - do the same thing for secondary that happened up with # 4b, including the equivalent
+            #            recursive call.
+            pass  # replace this line.
 
         else:
-            if secondary_branch is None:
-                logging.info(f"{method_id} no secondary to go to.")
-            else:
-                logging.info(f"{method_id} separation is {abs(target[self.get_axis()] - self.get_threshold())} and {best_distance=}")
+            pass  # potentially put a debug statement here to explain why you aren't going to the secondary branch.
 
         if found_better:
             return best_value, best_distance

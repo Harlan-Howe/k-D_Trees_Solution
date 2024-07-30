@@ -40,17 +40,17 @@ class PointNode(AbstractNode):
         :param visualizer: a hook to a visualizer, so we can see progress if this is 2-d. Not used.
         :return: (value, distance) if we can improve, (None, None) otherwise.
         """
-        distance_squared = 0
-        for i in range(len(self._value)):
-            distance_squared += pow(target[i]-self._value[i], 2)
-        distance = math.sqrt(distance_squared)
+        # TODO #3 - both target and self._value are Tuples of floats (e.g., (0.707, 0.707) or (1.0, 2.0, 3.0, 4.0))
+        #           with the same (unspecified) number of floats in them. You need to find the distance between them
+        #           via Pythagoras - the square root of the sum of the squares of the differences of the pairs.
+        distance = float('inf')  # replace this line.
 
+        # ---------- put the "to do" #3 code above this line.
         if distance < best_distance_so_far:
             logging.info(f"Found an improvement: {distance=}")
             if visualizer is not None:
                 visualizer.show_search_progress(target=target, best_point=self._value, wait_for_key=True)
             return self._value, distance
-
         else:
             return None, None
 
