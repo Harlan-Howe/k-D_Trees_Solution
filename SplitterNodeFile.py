@@ -12,6 +12,7 @@ NUM_POINTS_FOR_MEDIAN = 10
 class SplitterNode(AbstractNode):
 
     def __init__(self, axis: int = 0):
+        # Note: variables with leading _ are intended as private variables.
         self._axis: int = axis
         self._dimension = -1
         self._left_node: Optional[AbstractNode] = None  # Optional means it could be a Node, or it could be None.
@@ -27,7 +28,7 @@ class SplitterNode(AbstractNode):
     def get_threshold(self) -> float:
         return self._threshold
 
-    def is_a_leaf(self):
+    def is_a_leaf(self) -> bool:
         return False
 
     def get_left(self) -> Optional["AbstractNode"]:
@@ -38,9 +39,6 @@ class SplitterNode(AbstractNode):
 
     def get_value(self) -> Optional[Tuple[float, ...]]:
         return None
-
-    def recursive_to_string(self, depth: int = 0) -> str:
-        return "To String not yet implemented"
 
     def split_data(self, data_to_split: Set[Tuple[float, ...]]) -> Tuple[float,
                                                                          Set[Tuple[float, ...]],
@@ -63,7 +61,7 @@ class SplitterNode(AbstractNode):
                 left_set.add(datum)
             elif datum[self.get_axis()] > threshold:
                 right_set.add(datum)
-            else:
+            else:  # if equal, then flip a coin.
                 if random.random() < 0.5:
                     left_set.add(datum)
                 else:
@@ -91,13 +89,21 @@ class SplitterNode(AbstractNode):
         return nums[int(len(nums) / 2)]
 
     def build_subtree(self, data_to_split: Set[Tuple[float, ...]], visualizer=None) -> None:
-        self._dimension = len(next(iter(data_to_split)))
+        """
+        recursively build a tree from the data in the data_to_split set, with this SplitterNode as its root.
+        :param data_to_split: the set of Tuples of floats that we wish to load into the tree.
+        :param visualizer: if not None, this will display the creation of the data set in a 2-d format.
+        :return: Nothing... but this SplitterNode will now be the root of a tree (or subtree).
+        """
+        self._dimension = len(next(iter(data_to_split)))  # this is a fancy way of getting one datum from the set.
+
         self._threshold, left_set, right_set = self.split_data(data_to_split)
+
         if visualizer is not None:
             visualizer.display()
+
         if len(left_set) == 1:
             self._left_node = PointNode(next(iter(left_set)))
-
         elif len(left_set) > 1:
             self._left_node = SplitterNode(axis=(self.get_axis() + 1) % self.get_dimension())
             self._left_node.build_subtree(data_to_split=left_set,
@@ -105,12 +111,10 @@ class SplitterNode(AbstractNode):
 
         if len(right_set) == 1:
             self._right_node = PointNode(next(iter(right_set)))
-
         elif len(right_set) > 1:
             self._right_node = SplitterNode(axis=(self.get_axis() + 1) % self.get_dimension())
             self._right_node.build_subtree(data_to_split=right_set,
                                            visualizer=visualizer)
-
 
     def recursive_to_string(self, depth: int = 0) -> str:
         if self.get_left() is None:
@@ -134,6 +138,8 @@ class SplitterNode(AbstractNode):
         tries to find a datum closer to the target than the best_distance_so_far. If it finds one in either half of its
         split, returns the best datum and the shortest distance from the target; otherwise returns None for both.
         :param target: a data point for which we are searching for the nearest neighbor
+        :param best_value_so_far: the closest datum found in previous steps of this search, or None if we haven't found
+        one yet.
         :param best_distance_so_far: the closest distance we have found from elsewhere on the tree.
         :param visualizer: a TwoDVisualizer used to show the progress of this search, if this is a 2d dataset.
         :return: Either (closest value, shortest distance) if we can improve on best_distance_so_far, or (None, None),
@@ -148,20 +154,26 @@ class SplitterNode(AbstractNode):
         else:
             preferred_branch = self.get_right()
             secondary_branch = self.get_left()
-        id = random.randint(0,1000)
-        if preferred_branch is not None:
-            logging.info(f"{id} going to preferred.")
-            value, dist = preferred_branch.find_nearest(target, best_value, best_distance, visualizer=visualizer)
+        method_id = random.randint(0, 1000)
 
+        if preferred_branch is not None:
+            logging.info(f"{method_id} going to preferred.")
+            value, dist = preferred_branch.find_nearest(target, best_value, best_distance, visualizer=visualizer)
             if value is not None:
                 found_better = True
                 best_value = value
                 best_distance = dist
 
-        if visualizer is not None:
-            visualizer.show_search_progress(target=target, best_point=best_value, axis=self.get_axis(), threshold=self.get_threshold(), wait_for_key=True)
+        if visualizer is not None:  # if there is a visualizer, have it show what we've found so far and the distance
+            #                         to the threshold line, then wait for key press.
+            visualizer.show_search_progress(target=target,
+                                            best_point=best_value,
+                                            axis=self.get_axis(),
+                                            threshold=self.get_threshold(),
+                                            wait_for_key=True)
+
         if secondary_branch is not None and abs(target[self.get_axis()] - self.get_threshold()) < best_distance:
-            logging.info(f"{id} going to secondary.")
+            logging.info(f"{method_id} going to secondary.")
             value, dist = secondary_branch.find_nearest(target, best_value, best_distance, visualizer=visualizer)
             if value is not None:
                 found_better = True
@@ -170,11 +182,11 @@ class SplitterNode(AbstractNode):
 
         else:
             if secondary_branch is None:
-                logging.info(f"{id} no secondary to go to.")
+                logging.info(f"{method_id} no secondary to go to.")
             else:
-                logging.info(f"{id} separation is {abs(target[self.get_axis()] - self.get_threshold())} and {best_distance=}")
-        if found_better:
+                logging.info(f"{method_id} separation is {abs(target[self.get_axis()] - self.get_threshold())} and {best_distance=}")
 
+        if found_better:
             return best_value, best_distance
         return None, None
 
