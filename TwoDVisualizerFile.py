@@ -142,6 +142,7 @@ class TwoDVisualizer:
         """
         self.clear()
         self.show_dots_and_divisions()
+        # draw the target dot in green.
         cv2.circle(img=self.myCanvas,
                    center=(int(MARGIN + 2 * SCALE * target[0]), int(MARGIN + 2 * SCALE * target[1])),
                    radius=SCALE,
@@ -150,16 +151,16 @@ class TwoDVisualizer:
 
         if best_point is not None:  # draw the line from target to best point and the large circle around target.
             d = math.sqrt(pow(target[0] - best_point[0], 2)+pow(target[1] - best_point[1], 2))
-            cv2.circle(img=self.myCanvas,
-                       center=(int(MARGIN + 2 * SCALE * target[0]), int(MARGIN + 2 * SCALE * target[1])),
-                       radius=int(2 * SCALE * d),
-                       color=(0, 1.0, 0),
-                       thickness=1)
             cv2.line(img=self.myCanvas,
                      pt1=(int(MARGIN + 2 * SCALE * target[0]), int(MARGIN + 2 * SCALE * target[1])),
                      pt2=(int(MARGIN + 2 * SCALE * best_point[0]), int(MARGIN + 2 * SCALE * best_point[1])),
                      color=(0, 1.0, 0),
                      thickness=1)
+            cv2.circle(img=self.myCanvas,
+                       center=(int(MARGIN + 2 * SCALE * target[0]), int(MARGIN + 2 * SCALE * target[1])),
+                       radius=int(2 * SCALE * d),
+                       color=(0, 1.0, 0),
+                       thickness=1)
 
         # if a threshold is given, draw a horizontal or vertical yellow line from target to that threshold.
         if threshold > -1:
@@ -172,19 +173,19 @@ class TwoDVisualizer:
                      thickness=1)
             # ... and highlight that threshold in green.
             overlay = self.myCanvas.copy()
-            if axis == 1:
+            if axis == 1:  # horizontal line to threshold, so threshold itself is vertical.
                 cv2.line(img=overlay,
                          pt1=(MARGIN, int(MARGIN + 2 * SCALE * edge_pt[1])),
                          pt2=(int(MARGIN + 2 * SCALE * 100), int(MARGIN + 2 * SCALE * edge_pt[1])),
                          color=(0, 1.0, 0),
                          thickness=3)
-            else:
+            else:  # vertical line to threshold, so threshold itself is horizontal.
                 cv2.line(img=overlay,
                          pt1=(int(MARGIN + 2 * SCALE * edge_pt[0]), MARGIN),
                          pt2=(int(MARGIN + 2 * SCALE * edge_pt[0]), int(MARGIN + 2 * SCALE * 100)),
                          color=(0, 1.0, 0),
                          thickness=3)
-            self.myCanvas = cv2.addWeighted(overlay, 0.3, self.myCanvas, 0.7, 0)
+            self.myCanvas = cv2.addWeighted(overlay, 0.3, self.myCanvas, 0.7, 0)  # blend to give line 0.3 translucency
 
         cv2.imshow("Data", self.myCanvas)
         if wait_for_key:
