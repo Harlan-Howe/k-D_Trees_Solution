@@ -49,7 +49,7 @@ class SplitterNode(AbstractNode):
         """
         # TODO #0 - you've been given a variable, data_to_split, which consists of a Set of Tuples of floats. You also
         #           have a variable you can access via self.get_axis() that is the index of the item in all these tuples
-        #           we care about....
+        #           we care about....  [don't change anything here... move to #0a.]
         nums: List[float] = []
         if 0 < NUM_POINTS_FOR_MEDIAN < len(data_to_split):
             list_to_split = list(data_to_split)  # makes a list from the set.
