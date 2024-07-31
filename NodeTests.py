@@ -1,5 +1,6 @@
 import unittest
 
+from PointNodeFile import PointNode
 from SplitterNodeFile import SplitterNode, NUM_POINTS_FOR_MEDIAN
 
 
@@ -77,5 +78,50 @@ class MyTestCase(unittest.TestCase):
                           (0.72, 0.62, 0.22, 0.7, 0.25), (0.64, 0.26, 0.76, 0.64, 0.27),
                           (0.96, 0.42, 0.35, 0.63, 0.16), (0.12, 0.88, 0.03, 0.98, 0.89),
                           (0.26, 0.72, 0.84, 0.64, 0.46)} == right_set))
+
+    def test_PointNode_find_nearest_A(self):
+        ptn_0 = PointNode((45.0, 83.0))
+        target_1 = (44.0, 66.0)
+        target_2 = (18.0, 51.0)
+
+        val, dist = ptn_0.find_nearest(target_1, None, float('inf'))
+        self.assertEqual((45.0, 83.0), val)
+        self.assertAlmostEqual(17.03, dist, places=2)
+
+        val, dist = ptn_0.find_nearest(target_2, None, float('inf'))
+        self.assertEqual((45.0, 83.0), val)
+        self.assertAlmostEqual(41.87, dist, places=2)
+
+        val, dist = ptn_0.find_nearest(target_1, target_2, 41.87)
+        self.assertEqual((45.0, 83.0), val)
+        self.assertAlmostEqual(17.03, dist, places=2)
+
+        val, dist = ptn_0.find_nearest(target_2, target_1, 17.03)
+        self.assertIsNone(val)
+        self.assertIsNone(dist)
+
+    def test_PointNode_find_nearest_B(self):
+        ptn_0 = PointNode((45.0, 83.0, 18.0, 23.0))
+        target_1 = (44.0, 66.0, 22.0, 34.0)
+        target_2 = (18.0, 51.0, 25.0, 23.0)
+
+        val, dist = ptn_0.find_nearest(target_1, None, float('inf'))
+        self.assertEqual((45.0, 83.0, 18.0, 23.0), val)
+        self.assertAlmostEqual(20.66, dist, places=2)
+
+        val, dist = ptn_0.find_nearest(target_2, None, float('inf'))
+        self.assertEqual((45.0, 83.0, 18.0, 23.0), val)
+        self.assertAlmostEqual(42.45, dist, places=2)
+
+        val, dist = ptn_0.find_nearest(target_1, target_2, 42.45)
+        self.assertEqual((45.0, 83.0, 18.0, 23.0), val)
+        self.assertAlmostEqual(20.66, dist, places=2)
+
+        val, dist = ptn_0.find_nearest(target_2, target_1, 20.66)
+        self.assertIsNone(val)
+        self.assertIsNone(dist)
+
+        print(f"{val=}\t{dist=}")
+
 if __name__ == '__main__':
     unittest.main()
