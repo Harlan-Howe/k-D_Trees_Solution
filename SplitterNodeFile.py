@@ -6,7 +6,7 @@ from typing import List, Tuple, Optional, Set
 from PointNodeFile import PointNode
 
 from KinkaidDecorators import log_start_stop_method
-NUM_POINTS_FOR_MEDIAN = 10
+NUM_POINTS_FOR_MEDIAN = 20
 
 
 class SplitterNode(AbstractNode):
